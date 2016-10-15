@@ -91,7 +91,7 @@ public class ParallelIndexer implements Runnable {
     private ProgressMonitor pm = null;
     private DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance();
     private int numOfThreads = DocumentBuilder.NUM_OF_THREADS;
-    private int monitoringInterval = 30; // all xx seconds a status message will be displayed
+    private int monitoringInterval = 1; // all xx seconds a status message will be displayed
     private int overallCount = -1, numImages = -1; //, numSample = -1
     private boolean overWrite = true;   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private boolean useParallelClustering = true;
