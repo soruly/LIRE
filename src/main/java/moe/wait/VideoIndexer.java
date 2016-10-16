@@ -150,18 +150,28 @@ public class VideoIndexer {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
             String stderr = null;
-            int counter = 0;
+            int adjustment = 0;
             while ((stderr = stdError.readLine()) != null) {
                 //System.out.println(stderr);
-                Matcher matcher = Pattern.compile("pts_time:(\\d+.?\\d*)\\s+pos:").matcher(stderr);
+                Matcher matcher = Pattern.compile("n:\\s+0\\s+pts:\\s+(\\d+)\\spts_time:").matcher(stderr);
                 if (matcher.find()) {
-                    counter++;
-                    String timeCode = String.format("%.2f", Float.parseFloat(matcher.group(1)));
-                    String fileID = String.format(thumbnailIDFormat, counter);
-                    timeCodeMap.put(fileID,timeCode);
+                    adjustment = Integer.parseInt(matcher.group(1));
+                    for (int i = 1; i <= adjustment; i++) {
+                        Path brokenFrames = Paths.get(tempDir.toString(), String.format(thumbnailIDFormat+thumbnailFileFormat, i));
+                        System.out.println(brokenFrames.toString()+" deleted because it has no valid timecode");
+                        Files.delete(brokenFrames);
+                    }
                 }
             }
             proc.waitFor();
+
+            File[] files = tempDir.toFile().listFiles();
+            float timeCode = 0f;
+            for (File file : files) {
+                timeCodeMap.put(file.getName(),String.format("%.2f", timeCode));
+                timeCode += 1/fps*(files.length+adjustment)/files.length;
+            }
+
         } catch (Exception e){
             System.out.println("Error extracting thumbnails");
             System.exit(1);
@@ -195,7 +205,7 @@ public class VideoIndexer {
             br.readLine();
             while((line = br.readLine()) != null) {
                 String[] columns = line.split(thumbnailFileFormat+",");
-                docMap.put(Integer.parseInt(columns[0]), timeCodeMap.get(columns[0])+","+columns[1]);
+                docMap.put(Integer.parseInt(columns[0]), timeCodeMap.get(columns[0]+thumbnailFileFormat)+","+columns[1]);
             }
             br.close();
 
