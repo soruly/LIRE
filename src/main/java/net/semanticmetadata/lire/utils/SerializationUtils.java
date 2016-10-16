@@ -354,6 +354,20 @@ public class SerializationUtils {
     }
 
     /**
+     * Create a hex string from an array of int.
+     * @param data
+     * @return
+     */
+    public static String arrayToHexString(int[] array) {
+        StringBuilder sb = new StringBuilder(array.length * 8);
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0) sb.append(' ');
+            sb.append(Integer.toHexString(array[i]));
+        }
+        return sb.toString();
+    }
+
+    /**
      * Parses and returns a double array from a Sting with an arbitrary number of doubles.
      *
      * @param data

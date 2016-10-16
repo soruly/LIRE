@@ -50,6 +50,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
+
 /**
  * This class creates Lucene Documents from images using one or multiple Global Features.
  * Can also be used only for extraction.
@@ -243,6 +245,62 @@ public class GlobalDocumentBuilder implements DocumentBuilder {
         return result;
     }
 
+
+    /**
+     * Extracts the global feature and returns the Lucene Fields for the selected image.
+     *
+     * @param image         is the selected image.
+     * @param extractorItem is the extractor to be used to extract the features.
+     * @return array string.
+     */
+    private HashMap<String, String> getGlobalDescriptorFields(BufferedImage image, ExtractorItem extractorItem, boolean returnArray) {
+        HashMap<String, String> result = new HashMap<String, String>();
+        String hash = null;
+        String vector = null;
+
+        GlobalFeature globalFeature = extractGlobalFeature(image, (GlobalFeature) extractorItem.getExtractorInstance());
+        vector = Base64.encodeBase64String(globalFeature.getByteArrayRepresentation());
+
+        // if BitSampling is an issue we add a field with the given hashFunctionsFileName and the suffix "hash":
+        if (hashingEnabled) {
+            // TODO: check eventually if there is a more compressed string version of the integers. i.e. the hex string
+            if (globalFeature.getFeatureVector().length <= 3100) {
+                int[] hashes;
+                if (hashingMode == HashingMode.BitSampling) {
+                    hashes = BitSampling.generateHashes(globalFeature.getFeatureVector());
+                    hash = SerializationUtils.arrayToHexString(hashes);
+                } else if (hashingMode == HashingMode.LSH) {
+                    //hashes = LocalitySensitiveHashing.generateHashes(globalFeature.getFeatureVector());
+                    //hash = new TextField(extractorItems.get(extractorItem)[1], SerializationUtils.arrayToString(hashes), Field.Store.YES);
+                } else if (hashingMode == HashingMode.MetricSpaces) {
+                    if (MetricSpaces.supportsFeature(globalFeature)) {
+                        // the name of the field is set at "addExtractor" time.
+                        //hash = new TextField(extractorItems.get(extractorItem)[1], MetricSpaces.generateHashString(globalFeature), Field.Store.YES);
+                    }
+                }
+            } else
+                System.err.println("Could not create hashes, feature vector too long: " + globalFeature.getFeatureVector().length + " (" + globalFeature.getClass().getName() + ")");
+        }
+        result.put(extractorItems.get(extractorItem)[0], vector);
+        result.put(extractorItems.get(extractorItem)[1], hash);
+        return result;
+    }
+
+    /**
+     * @param image the image to analyze.
+     * @return array string.
+     */
+    public HashMap<String, String> createDescriptorFields(BufferedImage image, boolean returnArray) {
+        docsCreated = true;
+        HashMap<String, String> resultList = new HashMap<String, String>();
+        if (extractorItems.size() > 0) {
+            for (Map.Entry<ExtractorItem, String[]> extractorItemEntry : extractorItems.entrySet()) {
+                resultList.putAll(getGlobalDescriptorFields(image, extractorItemEntry.getKey(), true));
+            }
+        }
+
+        return resultList;
+    }
 
     /**
      * @param image the image to analyze.
