@@ -603,7 +603,6 @@ public class ParallelCsvIndexer implements Runnable {
             System.out.printf("Total time of indexing: %s.\n", convertTime(System.currentTimeMillis() - start));
             
             dos.close();
-            System.out.println("Index file saved!");
 
             indexingFinished = true;
         } catch (IOException e) {

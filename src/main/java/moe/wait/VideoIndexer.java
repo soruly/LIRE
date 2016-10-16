@@ -41,7 +41,7 @@ public class VideoIndexer {
         String inputFile = null;
         String outputFile = null;
         boolean forceOverwrite = false;
-        int fps = 0;
+        float fps = 23.976f;
         int thumbnail_max_height = 120;
         int numberOfThreads = DocumentBuilder.NUM_OF_THREADS;
         String thumbnailIDFormat = "%08d";
@@ -75,7 +75,7 @@ public class VideoIndexer {
             } else if (arg.startsWith("-r")) {
                 if ((i + 1) < args.length)
                     try {
-                        fps = Integer.parseInt(args[i + 1]);
+                        fps = Float.parseFloat(args[i + 1]);
                     } catch (Exception e1) {
                         System.err.println("Could not set fps to \"" + args[i + 1] + "\".");
                         e1.printStackTrace();
@@ -141,12 +141,8 @@ public class VideoIndexer {
         try {
             Path extractPath = Paths.get(tempDir.toString(), thumbnailIDFormat+thumbnailFileFormat);
             String vf = null;
-            if (fps > 0){
-                vf = "fps="+Integer.toString(fps)+",scale=-1:"+Integer.toString(thumbnail_max_height)+",showinfo";
-            }
-            else{
-                vf = "scale=-1:"+Integer.toString(thumbnail_max_height)+",showinfo";
-            }
+            vf = "fps="+Float.toString(fps)+",scale=-1:"+Integer.toString(thumbnail_max_height)+",showinfo";
+
             String[] commands = {"ffmpeg", "-i", inputFile, "-q:v", "2", "-an", "-vf", vf, extractPath.toString()};
             Process proc = Runtime.getRuntime().exec(commands);
 
