@@ -56,3 +56,5 @@ textindextest/*
 wang-index-*/*
 *-index-*/
 testxml.xml
+dist/
+classes/
