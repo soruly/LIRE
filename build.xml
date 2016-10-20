@@ -250,6 +250,7 @@ Build-Number: ${build-number}
         </java>
     </target>
 
-
+    <target name="test" depends="dist">
+    </target>
 
 </project>
