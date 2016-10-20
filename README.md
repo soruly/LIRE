@@ -1,4 +1,7 @@
 # LIRE - Lucene Image Retrieval (With Video Indexer)
+
+[![Build Status](https://travis-ci.org/soruly/LIRE.svg?branch=master)](https://travis-ci.org/soruly/LIRE)
+
 This is a fork of [LIRE](https://github.com/dermotte/LIRE) with support for indexing video files.
 
 ## System requirements
