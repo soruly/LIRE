@@ -61,7 +61,7 @@ public class VideoIndexer {
             } else if (arg.startsWith("-o")) {
                 // out file, if it's not set, use the input filename with csv extension.
                 if ((i + 1) < args.length)
-                    outputFile = args[1];
+                    outputFile = args[i + 1];
                 else printHelp();
             } else if (arg.startsWith("-m")) {
                 if ((i + 1) < args.length)
@@ -110,7 +110,7 @@ public class VideoIndexer {
         }
 
         if (outputFile == null) {
-            outputFile = FilenameUtils.getBaseName(inputFile)+".csv";
+            outputFile = FilenameUtils.getBaseName(outputFile)+".csv";
         }
 
         File f = new File(inputFile);
