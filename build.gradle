@@ -5,8 +5,8 @@ apply plugin: 'java'
 apply plugin: 'project-report'
 
 
-sourceCompatibility = 11
-version = '1.0_b06'
+sourceCompatibility = 16
+version = '1.0_b07'
 jar {
     manifest {
         attributes 'Implementation-Title': 'LIRE',
