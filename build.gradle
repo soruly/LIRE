@@ -5,12 +5,12 @@ apply plugin: 'java'
 apply plugin: 'project-report'
 
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 version = '1.0_b05'
 jar {
     manifest {
         attributes 'Implementation-Title': 'LIRE',
-                'Implementation-Version': version
+                'Implementation-Version': archiveVersion
     }
 }
 
@@ -19,28 +19,24 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.apache.lucene', name: 'lucene-core', version: '8.0.0'
-    compile group: 'org.apache.lucene', name: 'lucene-analyzers-common', version: '8.0.0'
-    compile group: 'org.apache.lucene', name: 'lucene-queryparser', version: '8.0.0'
-    compile group: 'commons-io', name: 'commons-io', version: '2.6'
-    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
-    // https://mvnrepository.com/artifact/commons-codec/commons-codec
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
-    // https://mvnrepository.com/artifact/com.sangupta/jopensurf
-    compile group: 'com.sangupta', name: 'jopensurf', version: '1.0.0'
-    // https://mvnrepository.com/artifact/org.bytedeco.javacpp-presets/opencv
-    // compile group: 'org.bytedeco.javacpp-presets', name: 'opencv', version: '2.4.11-0.11'
-    compile fileTree(dir: 'lib', include: '*.jar')
-    runtime fileTree(dir: 'lib', include: '*.jar')
+    // ---< Lucene >---
+    implementation 'org.apache.lucene:lucene-core:8.0.0'
+    implementation 'org.apache.lucene:lucene-analyzers-common:8.0.0'
+    implementation 'org.apache.lucene:lucene-queryparser:8.0.0'
+    implementation 'org.apache.lucene:lucene-queries:8.0.0'
+
+    // ---< Commons >---
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+    implementation 'commons-codec:commons-codec:1.11'
+    implementation 'com.sangupta:jopensurf:1.0.0'
+
+    implementation fileTree(dir: 'lib', include: '*.jar')
 
     // ---< Helper files, optional >---
-    // https://mvnrepository.com/artifact/com.twelvemonkeys.imageio/imageio-jpeg
-    runtime group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.4.1'
-    testRuntime group: 'com.twelvemonkeys.imageio', name: 'imageio-jpeg', version: '3.4.1'
+    implementation 'com.twelvemonkeys.imageio:imageio-jpeg:3.4.1'
 
-    // https://mvnrepository.com/artifact/junit/junit
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 /**
@@ -63,6 +59,7 @@ clean.doFirst {
  * We'll gradually add them back again.
  */
 test {
+    exclude 'net/semanticmetadata/lire/applications/**'
     exclude 'net/semanticmetadata/lire/benchmarking/**'
     exclude 'net/semanticmetadata/lire/builders/**'
     exclude 'net/semanticmetadata/lire/classifiers/**'
