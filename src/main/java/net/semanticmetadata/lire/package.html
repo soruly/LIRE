@@ -17,7 +17,7 @@
   ~ We kindly ask you to refer the any or one of the following publications in
   ~ any publication mentioning or employing Lire:
   ~
-  ~ Lux Mathias, Savvas A. Chatzichristofis. Lire: Lucene Image Retrieval –
+  ~ Lux Mathias, Savvas A. Chatzichristofis. Lire: Lucene Image Retrieval -
   ~ An Extensible Java CBIR Library. In proceedings of the 16th ACM International
   ~ Conference on Multimedia, pp. 1085-1088, Vancouver, Canada, 2008
   ~ URL: http://doi.acm.org/10.1145/1459359.1459577
@@ -39,19 +39,20 @@
 
 <h2>General</h2>
 
-<p>The LIRE library allows the creation of a Lucene Index for
-    content based image retrieval (CBIR). Furthermore methods
-    for searching the index are provided.</p>
+<p>
+  The LIRE library allows the creation of a Lucene Index for content based image
+  retrieval (CBIR). Furthermore methods for searching the index are provided.
+</p>
 
-<p>This library is part of the Caliph & Emir project and aims
-    to provide the CBIR features to other Java projects in an
-    easy and light weight way.</p>
+<p>
+  This library is part of the Caliph & Emir project and aims to provide the CBIR
+  features to other Java projects in an easy and light weight way.
+</p>
 
 <h2>Creating an Index</h2>
 
-Use DocumentBuilderFactory to create a DocumentBuilder, which
-will create Lucene Documents from images. Add this documents to
-an index like this:
+Use DocumentBuilderFactory to create a DocumentBuilder, which will create Lucene
+Documents from images. Add this documents to an index like this:
 
 <pre>
     System.out.println(">> Indexing " + images.size() + " files.");
@@ -74,8 +75,8 @@ an index like this:
 </pre>
 
 <h2>Searching in an Index</h2>
-Use the ImageSearcherFactory for creating an ImageSearcher, which will retrieve the images
-for you from the index.
+Use the ImageSearcherFactory for creating an ImageSearcher, which will retrieve
+the images for you from the index.
 
 <pre>
     IndexReader reader = IndexReader.open(indexPath);
