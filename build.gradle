@@ -6,7 +6,7 @@ apply plugin: 'project-report'
 
 
 sourceCompatibility = 11
-version = '1.0_b05'
+version = '1.0_b06'
 jar {
     manifest {
         attributes 'Implementation-Title': 'LIRE',
@@ -20,10 +20,11 @@ repositories {
 
 dependencies {
     // ---< Lucene >---
-    implementation 'org.apache.lucene:lucene-core:8.0.0'
-    implementation 'org.apache.lucene:lucene-analyzers-common:8.0.0'
-    implementation 'org.apache.lucene:lucene-queryparser:8.0.0'
-    implementation 'org.apache.lucene:lucene-queries:8.0.0'
+    implementation 'org.apache.lucene:lucene-core:8.9.0'
+    implementation 'org.apache.lucene:lucene-analyzers-common:8.9.0'
+    implementation 'org.apache.lucene:lucene-queryparser:8.9.0'
+    implementation 'org.apache.lucene:lucene-queries:8.9.0'
+    implementation 'org.apache.lucene:lucene-backward-codecs:8.9.0'
 
     // ---< Commons >---
     implementation 'commons-io:commons-io:2.6'
