@@ -44,31 +44,25 @@ import net.semanticmetadata.lire.utils.ImageUtils;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.util.Arrays;
 
 
 /**
- * Class for extrcating & comparing MPEG-7 based CBIR descriptor ColorLayout
+ * Class for extracting & comparing MPEG-7 based CBIR descriptor ColorLayout
  *
  * @author Mathias Lux, mathias@juggle.at
  */
 public class ColorLayoutImpl {
-    // static final boolean debug = true;
+
     protected int[][] shape;
     protected int imgYSize, imgXSize;
     protected BufferedImage img;
-
-    protected static int[] availableCoeffNumbers = {1, 3, 6, 10, 15, 21, 28, 64};
 
     protected int numCCoeff = 6, numYCoeff = 21;
 
     public int[] YCoeff = new int[numYCoeff];
     public int[] CbCoeff = new int[numCCoeff];
     public int[] CrCoeff = new int[numCCoeff];
-
-    // tmp vars for similarity function.
-//    int diffCb, diffCr, sumCb=0, sumCr=0, sumY=0;
-
-
 
     protected static int[] arrayZigZag = {
             0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
@@ -145,10 +139,6 @@ public class ColorLayoutImpl {
         init();
     }
 
-//    public ColorLayoutImpl(String descriptorValues) {
-//        setStringRepresentation(descriptorValues);
-//    }
-
     /**
      * Create a ColorLayout Object from the given BufferedImage with the desired number of Coefficients
      *
@@ -189,19 +179,13 @@ public class ColorLayoutImpl {
         int i, k, x, y, j;
         long[][] sum = new long[3][64];
         int[] cnt = new int[64];
-        double yy = 0.0;
+        double yy;
         int R, G, B;
 
         //init of the blocks
-        for (i = 0; i < 64; i++) {
-            cnt[i] = 0;
-            sum[0][i] = 0;
-            sum[1][i] = 0;
-            sum[2][i] = 0;
-            shape[0][i] = 0;
-            shape[1][i] = 0;
-            shape[2][i] = 0;
-        }
+        Arrays.fill(shape[0], 0);
+        Arrays.fill(shape[1], 0);
+        Arrays.fill(shape[2], 0);
 
         WritableRaster raster = img.getRaster();
         int[] pixel = {0, 0, 0};
@@ -239,24 +223,23 @@ public class ColorLayoutImpl {
     }
 
     private static void Fdct(int[] shapes) {
-        int i, j, k;
         double s;
         double[] dct = new double[64];
 
         //calculation of the cos-values of the second sum
-        for (i = 0; i < 8; i++) {
-            for (j = 0; j < 8; j++) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
                 s = 0.0;
-                for (k = 0; k < 8; k++)
+                for (int k = 0; k < 8; k++)
                     s += arrayCosin[j][k] * shapes[8 * i + k];
                 dct[8 * i + j] = s;
             }
         }
 
-        for (j = 0; j < 8; j++) {
-            for (i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            for (int i = 0; i < 8; i++) {
                 s = 0.0;
-                for (k = 0; k < 8; k++)
+                for (int k = 0; k < 8; k++)
                     s += arrayCosin[i][k] * dct[8 * k + j];
                 shapes[8 * i + j] = (int) Math.floor(s + 0.499999);
             }
@@ -305,8 +288,7 @@ public class ColorLayoutImpl {
 
         if (i > 255)
             i = 255;
-        //if(i > 239)
-        //i = 239;
+
         if (i < -256)
             i = -256;
         if ((Math.abs(i)) > 127)
@@ -315,16 +297,14 @@ public class ColorLayoutImpl {
             j = 32 + ((Math.abs(i)) >> 1);
         else
             j = Math.abs(i);
-        j = (i < 0) ? -j : j;
 
+        j = (i < 0) ? -j : j;
         j += 128;
-        //j+=132;
 
         return j;
     }
 
     private int extract() {
-
         createShape();
 
         Fdct(shape[0]);
@@ -342,58 +322,29 @@ public class ColorLayoutImpl {
             CrCoeff[i] = quant_ac(shape[2][(arrayZigZag[i])]) >> 3;
         }
 
-        setYCoeff(YCoeff);
-        setCbCoeff(CbCoeff);
-        setCrCoeff(CrCoeff);
         return 0;
-    }
-
-    private void setYCoeff(int[] YCoeff) {
-        StringBuilder b = new StringBuilder(256);
-        for (int i = 0; i < numYCoeff; i++) {
-            b.append(YCoeff[i]).append(' ');
-        }
-//        System.out.println("y:  " + b.toString());
-    }
-
-
-    private void setCbCoeff(int[] CbCoeff) {
-        StringBuilder b = new StringBuilder(256);
-        for (int i = 0; i < numCCoeff; i++) {
-            b.append(CbCoeff[i]).append(' ');
-        }
-//        System.out.println("cb: " + b.toString());
-    }
-
-    private void setCrCoeff(int[] CrCoeff) {
-        StringBuilder b = new StringBuilder(256);
-        for (int i = 0; i < numCCoeff; i++) {
-            b.append(CrCoeff[i]).append(' ');
-        }
-//        System.out.println("cr: " + b.toString());
     }
 
     /**
      * Nicht alle Werte sind laut MPEG-7 erlaubt ....
      */
     private static int getRightCoeffNumber(int num) {
-        int val = 0;
         if (num <= 1)
-            val = 1;
-        else if (num <= 3)
-            val = 3;
-        else if (num <= 6)
-            val = 6;
-        else if (num <= 10)
-            val = 10;
-        else if (num <= 15)
-            val = 15;
-        else if (num <= 21)
-            val = 21;
-        else if (num <= 28)
-            val = 28;
-        else if (num > 28) val = 64;
-        return val;
+            return 1;
+        if (num <= 3)
+            return 3;
+        if (num <= 6)
+            return 6;
+        if (num <= 10)
+            return 10;
+        if (num <= 15)
+            return 15;
+        if (num <= 21)
+            return 21;
+        if (num <= 28)
+            return 28;
+
+        return 64;
     }
 
     /**
@@ -402,22 +353,7 @@ public class ColorLayoutImpl {
      * @return -1.0 if data is not valid.
      */
     public static double getSimilarity(int[] YCoeff1, int[] CbCoeff1, int[] CrCoeff1, int[] YCoeff2, int[] CbCoeff2, int[] CrCoeff2) {
-//        int numYCoeff1, numYCoeff2, CCoeff1, CCoeff2, YCoeff, CCoeff;
-
-        //Numbers of the Coefficients of two descriptor values.
-//        numYCoeff1 = YCoeff1.length;
-//        numYCoeff2 = YCoeff2.length;
-//        CCoeff1 = CbCoeff1.length;
-//        CCoeff2 = CbCoeff2.length;
-
-        //take the minimal Coeff-number
-//        YCoeff = Math.min(numYCoeff1, numYCoeff2);
-//        CCoeff = Math.min(CCoeff1, CCoeff2);
-
-//        setWeightingValues();
-
-//        int[] sum = new int[3];
-        int diffCb, diffCr, sumCb=0, sumCr=0, sumY=0;
+        int diffCb, diffCr, sumCb = 0, sumCr = 0, sumY = 0;
 
         for (int j = 0; j < Math.min(YCoeff1.length, YCoeff2.length); j++) {
             diffCb = (YCoeff1[j] - YCoeff2[j]);
@@ -434,25 +370,11 @@ public class ColorLayoutImpl {
         return Math.sqrt(sumY) + Math.sqrt(sumCb) + Math.sqrt(sumCr);
     }
 
-    private static void setWeightingValues() {
-        weightMatrix[0][0] = 2;
-        weightMatrix[0][1] = weightMatrix[0][2] = 2;
-        weightMatrix[1][0] = 2;
-        weightMatrix[1][1] = weightMatrix[1][2] = 1;
-        weightMatrix[2][0] = 4;
-        weightMatrix[2][1] = weightMatrix[2][2] = 2;
-
-        for (int i = 0; i < 3; i++) {
-            for (int j = 3; j < 64; j++)
-                weightMatrix[i][j] = 1;
-        }
-    }
-
     private static BufferedImage YCrCb2RGB(int[][] rgbSmallImage) {
         BufferedImage br = new BufferedImage(8, 8, BufferedImage.TYPE_INT_RGB);
         WritableRaster r = br.getRaster();
         double rImage, gImage, bImage;
-        int pixel[] = new int[3];
+        int[] pixel = new int[3];
 
         for (int i = 0; i < 64; i++) {
             rImage = ((rgbSmallImage[0][i] - 16.0) * 256.0) / 219.0;
@@ -470,52 +392,50 @@ public class ColorLayoutImpl {
     }
 
     public BufferedImage getColorLayoutImage() {
-        if (colorLayoutImage != null)
-            return colorLayoutImage;
-        else {
-            int[][] smallReImage = new int[3][64];
-
-            // inverse quantization and zig-zagging
-            smallReImage[0][0] = IquantYdc((YCoeff[0]));
-            smallReImage[1][0] = IquantCdc((CbCoeff[0]));
-            smallReImage[2][0] = IquantCdc((CrCoeff[0]));
-
-            for (int i = 1; i < 64; i++) {
-                smallReImage[0][(arrayZigZag[i])] = IquantYac((YCoeff[i]));
-                smallReImage[1][(arrayZigZag[i])] = IquantCac((CbCoeff[i]));
-                smallReImage[2][(arrayZigZag[i])] = IquantCac((CrCoeff[i]));
-            }
-
-            // inverse Discrete Cosine Transform
-            Idct(smallReImage[0]);
-            Idct(smallReImage[1]);
-            Idct(smallReImage[2]);
-
-            // YCrCb to RGB
-            colorLayoutImage = YCrCb2RGB(smallReImage);
+        if (colorLayoutImage != null) {
             return colorLayoutImage;
         }
+
+        int[][] smallReImage = new int[3][64];
+
+        // inverse quantization and zig-zagging
+        smallReImage[0][0] = IquantYdc((YCoeff[0]));
+        smallReImage[1][0] = IquantCdc((CbCoeff[0]));
+        smallReImage[2][0] = IquantCdc((CrCoeff[0]));
+
+        for (int i = 1; i < 64; i++) {
+            smallReImage[0][(arrayZigZag[i])] = IquantYac((YCoeff[i]));
+            smallReImage[1][(arrayZigZag[i])] = IquantCac((CbCoeff[i]));
+            smallReImage[2][(arrayZigZag[i])] = IquantCac((CrCoeff[i]));
+        }
+
+        // inverse Discrete Cosine Transform
+        Idct(smallReImage[0]);
+        Idct(smallReImage[1]);
+        Idct(smallReImage[2]);
+
+        // YCrCb to RGB
+        colorLayoutImage = YCrCb2RGB(smallReImage);
+        return colorLayoutImage;
     }
 
     private static void Idct(int[] iShapes) {
-        int u, v, k;
-        double s;
         double[] dct = new double[64];
 
         //calculation of the cos-values of the second sum
-        for (u = 0; u < 8; u++) {
-            for (v = 0; v < 8; v++) {
-                s = 0.0;
-                for (k = 0; k < 8; k++)
+        for (int u = 0; u < 8; u++) {
+            for (int v = 0; v < 8; v++) {
+                double s = 0.0;
+                for (int k = 0; k < 8; k++)
                     s += arrayCosin[k][v] * iShapes[8 * u + k];
                 dct[8 * u + v] = s;
             }
         }
 
-        for (v = 0; v < 8; v++) {
-            for (u = 0; u < 8; u++) {
-                s = 0.0;
-                for (k = 0; k < 8; k++)
+        for (int v = 0; v < 8; v++) {
+            for (int u = 0; u < 8; u++) {
+                double s = 0.0;
+                for (int k = 0; k < 8; k++)
                     s += arrayCosin[k][u] * dct[8 * k + v];
                 iShapes[8 * u + v] = (int) Math.floor(s + 0.499999);
             }
@@ -534,7 +454,6 @@ public class ColorLayoutImpl {
             j = 96 + (i - 32);
         else if (i > 16)
             j = 66 + ((i - 16) << 1);
-
         else
             j = i << 2;
 
@@ -596,76 +515,5 @@ public class ColorLayoutImpl {
         j = (i < 0) ? -j : j;
 
         return j;
-    }
-
-    public int getNumberOfCCoeff() {
-        return numCCoeff;
-    }
-
-    public void setNumberOfCCoeff(int numberOfCCoeff) {
-        this.numCCoeff = numberOfCCoeff;
-    }
-
-    public int getNumberOfYCoeff() {
-        return numYCoeff;
-    }
-
-    public void setNumberOfYCoeff(int numberOfYCoeff) {
-        this.numYCoeff = numberOfYCoeff;
-    }
-
-
-//    public String getStringRepresentation() {
-//        StringBuilder sb = new StringBuilder(256);
-//        StringBuilder sbtmp = new StringBuilder(256);
-//        for (int i = 0; i < numYCoeff; i++) {
-//            sb.append(YCoeff[i]);
-//            if (i + 1 < numYCoeff) sb.append(' ');
-//        }
-//        sb.append("z");
-//        for (int i = 0; i < numCCoeff; i++) {
-//            sb.append(CbCoeff[i]);
-//            if (i + 1 < numCCoeff) sb.append(' ');
-//            sbtmp.append(CrCoeff[i]);
-//            if (i + 1 < numCCoeff) sbtmp.append(' ');
-//        }
-//        sb.append("z");
-//        sb.append(sbtmp);
-//        return sb.toString();
-//    }
-//
-//    public void setStringRepresentation(String descriptor) {
-//        String[] coeffs = descriptor.split("z");
-//        String[] y = coeffs[0].split(" ");
-//        String[] cb = coeffs[1].split(" ");
-//        String[] cr = coeffs[2].split(" ");
-//
-//        numYCoeff = y.length;
-//        numCCoeff = Math.min(cb.length, cr.length);
-//
-//        YCoeff = new int[numYCoeff];
-//        CbCoeff = new int[numCCoeff];
-//        CrCoeff = new int[numCCoeff];
-//
-//        for (int i = 0; i < numYCoeff; i++) {
-//            YCoeff[i] = Integer.parseInt(y[i]);
-//        }
-//        for (int i = 0; i < numCCoeff; i++) {
-//            CbCoeff[i] = Integer.parseInt(cb[i]);
-//            CrCoeff[i] = Integer.parseInt(cr[i]);
-//
-//        }
-//    }
-
-    public int[] getYCoeff() {
-        return YCoeff;
-    }
-
-    public int[] getCbCoeff() {
-        return CbCoeff;
-    }
-
-    public int[] getCrCoeff() {
-        return CrCoeff;
     }
 }
