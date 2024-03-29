@@ -53,6 +53,7 @@ import net.semanticmetadata.lire.imageanalysis.features.global.mpeg7.ColorLayout
  * @author Mathias Lux, mathias@juggle.at
  */
 public class ColorLayout extends ColorLayoutImpl implements GlobalFeature {
+
     /**
      * Provides a much faster way of serialization.
      *
@@ -123,15 +124,14 @@ public class ColorLayout extends ColorLayoutImpl implements GlobalFeature {
     /**
      * Compares one descriptor to another.
      *
-     * @param descriptor
      * @return the distance from [0,infinite) or -1 if descriptor type does not match
      */
-
     @Override
     public double getDistance(LireFeature descriptor) {
-        if (!(descriptor instanceof ColorLayoutImpl)) return -1d;
-        ColorLayoutImpl cl = (ColorLayoutImpl) descriptor;
-        return getSimilarity(YCoeff, CbCoeff, CrCoeff, cl.YCoeff, cl.CbCoeff, cl.CrCoeff);
+        if (descriptor instanceof ColorLayoutImpl cl) {
+            return getSimilarity(YCoeff, CbCoeff, CrCoeff, cl.YCoeff, cl.CbCoeff, cl.CrCoeff);
+        }
+        return -1.0d;
     }
 
     @Override
